@@ -1,0 +1,14 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<h3>Recursos</h3>
+<table class="table table-striped">
+<thead><tr><th>Nombre</th><th>Cantidad</th><th>Ubicación</th></tr></thead>
+<tbody>
+{% for r in recursos %}
+<tr><td>{{ r.nombre }}</td><td>{{ r.cantidad }}</td><td>{{ r.ubicacion }}</td></tr>
+{% empty %}
+<tr><td colspan="3">No hay recursos cargados.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

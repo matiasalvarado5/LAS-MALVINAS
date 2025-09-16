@@ -1,0 +1,23 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<h3>Mapa - Puntos críticos</h3>
+<div id="map" style="height:600px;"></div>
+<script>
+const map = L.map('map').setView([-34.623, -68.346], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18}).addTo(map);
+
+
+// Epicentro
+L.marker([-34.623, -68.346]).addTo(map).bindPopup('Epicentro: Las Malvinas');
+// Puentes caidos RP179 / RP175 (coordenadas aproximadas)
+L.marker([-34.603, -68.296]).addTo(map).bindPopup('Puente RP179 - Caído');
+L.marker([-34.643, -68.396]).addTo(map).bindPopup('Puente RP175 - Caído');
+
+
+// Hospitals from context
+const hospitales = {{ hospitales|safe }};
+hospitales.forEach(h => {
+L.marker([h.lat, h.lon]).addTo(map).bindPopup(h.nombre + ' - Cap: ' + h.capacidad_operativa + '/' + h.capacidad_total);
+});
+</script>
+{% endblock %}

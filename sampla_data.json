@@ -1,0 +1,19 @@
+[ {
+"model": "dashboard.hospital",
+"pk": 1,
+"fields": {
+"nombre": "Hospital Central San Rafael",
+"lat": -34.523,
+"lon": -68.333,
+"capacidad_total": 200,
+"capacidad_operativa": 80
+}
+}, {
+"model": "dashboard.recurso",
+"pk": 1,
+"fields": {
+"nombre": "Generadores",
+"cantidad": 5,
+"ubicacion": "Planta Municipal"
+}
+}]  
