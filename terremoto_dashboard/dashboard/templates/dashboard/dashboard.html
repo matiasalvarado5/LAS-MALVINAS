@@ -12,11 +12,11 @@
       --accent:#0069d9;
       --card-bg:linear-gradient(135deg,#ffffff, #f3f7ff);
     }
-    body { background:black; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; overflow-x: hidden; overflow-y: auto; }
+    body { background:black; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; overflow-x: hidden; overflow-y: auto; color: #e6eef8; }
     nav.navbar { box-shadow: 0 4px 18px rgba(10,20,40,0.08); position:relative; z-index:1000; }
-    #map { height:520px; border-radius:10px; box-shadow: 0 6px 20px rgba(10,20,40,0.08); }
-    .card-spot { min-height:120px; background: var(--card-bg); border:0; box-shadow: 0 6px 18px rgba(50,60,80,0.05); border-radius:10px; }
-    .small-muted { color:#6b7280 }
+    #map { height:520px; border-radius:10px; box-shadow: 0 6px 20px rgba(10,20,40,0.08); background:#fff; }
+    .card-spot { min-height:120px; background: var(--card-bg); border:0; box-shadow: 0 6px 18px rgba(50,60,80,0.05); border-radius:10px; color:#002; }
+    .small-muted { color:#9aa4b2 }
     .btn-accent { background: var(--accent); color:#fff; border:0 }
     .controls { position:static; margin-top: 10px; }
     .legend-pill { display:inline-block; padding:6px 10px; border-radius:999px; background: rgba(0,0,0,0.04); margin-right:8px; font-size:13px }
@@ -68,6 +68,7 @@
       box-shadow: 0 8px 30px rgba(0,0,0,0.45);
       background: linear-gradient(180deg, rgba(255,69,58,0.06), rgba(255,69,58,0.03));
       border: 1px solid rgba(255,69,58,0.12);
+      color: #fff;
     }
     .exclusion-card .card-body { display:flex; gap:16px; align-items:center; }
     .alarm-icon {
@@ -84,6 +85,25 @@
       .exclusion-card .card-body { flex-direction: column; text-align:center; }
       .alarm-icon { margin-top:6px; }
     }
+
+    /* Services horizontal compact */
+    .services-inline { display:flex; gap:18px; flex-wrap:wrap; align-items:center; }
+    .services-inline li { list-style:none; margin:0; padding:0; font-size:0.92rem; color:#cfe6ff; }
+
+    /* Bigger evaluation chart area */
+    #structEvalWrapper { margin-top:18px; }
+    #structEvalChart { width:100% !important; height:360px !important; background:#fff; border-radius:8px; padding:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+
+    /* Center map column visually */
+    .map-card { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .map-inner { width:100%; max-width: 960px; }
+
+    /* Chart canvases sizing */
+    #victimsTime { width:100%; height:180px; }
+    #popDonut { width:100%; height:320px; }
+
+    /* small adjustments */
+    .card .card-body small { color:#8aa0b8; }
   </style>
 </head>
 <body>
@@ -101,11 +121,11 @@
 </nav>
 
 <main class="container py-4">
-  <!-- Síntesis textual -->
+  <!-- Síntesis textual (mantengo pero compacto) -->
   <div class="card mb-3">
     <div class="card-body">
-      <h5 class="card-title">Síntesis del evento</h5>
-      <p class="card-text" id="synthesis"></p>
+      <h6 class="card-title">SÍNTESIS DEL EVENTO</h6>
+      <p class="card-text small" id="synthesis"></p>
     </div>
   </div>
 
@@ -113,33 +133,19 @@
   <section class="row g-3 mb-3" id="summary-cards"></section>
 
   <section class="row g-3 mb-4 position-relative">
-    <div class="controls">
-      <div class="card p-2">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="toggleBridges" checked>
-          <label class="form-check-label small" for="toggleBridges">Mostrar puentes</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="toggleShelters" checked>
-          <label class="form-check-label small" for="toggleShelters">Mostrar refugios</label>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-8">
-      <div class="card p-3">
+    <div class="col-lg-8 map-card">
+      <div class="card p-3 map-inner">
         <h5>Mapa — epicentro, puentes y refugios</h5>
         <div id="map"></div>
-        <div class="mt-2 text-end">
-          <button id="setEpicBtn" class="btn btn-sm btn-outline-danger">Definir epicentro manualmente</button>
 
-          <!-- <--- AÑADIDO: botones mínimos para definir puentes (mantienen el layout) -->
+        <div class="mt-2 text-center">
+          <button id="setEpicBtn" class="btn btn-sm btn-outline-danger">Definir epicentro manualmente</button>
           <span class="bridge-controls">
             <button id="defBridge1" class="btn btn-sm btn-outline-warning bridge-btn">Definir Puente 1</button>
             <button id="defBridge2" class="btn btn-sm btn-outline-warning bridge-btn">Definir Puente 2</button>
           </span>
         </div>
-        <div class="mt-2 small-muted">
+        <div class="mt-2 small-muted text-center">
           <span class="legend-pill">● Epicentro</span>
           <span class="legend-pill">● Puentes</span>
           <span class="legend-pill">● Refugios</span>
@@ -150,32 +156,35 @@
     <div class="col-lg-4">
       <div class="card p-3 mb-3">
         <h6>Servicios básicos</h6>
-        <ul id="servicesList" class="list-unstyled mb-0"></ul>
+        <ul id="servicesList" class="services-inline mb-0">
+          <!-- se llenará con JS en formato horizontal -->
+        </ul>
       </div>
 
-      <div class="card p-3">
-        <h6>Capacidad hospitalaria (últimos puntos)</h6>
-        <canvas id="hospCapChart" height="180"></canvas>
-      </div>
-    </div>
-  </section>
-
-  <section class="row g-3 mb-4">
-    <div class="col-lg-6">
-      <div class="card p-3">
+      <div class="card p-3 mb-3">
         <h6>Heridos y Fallecidos (serie temporal)</h6>
-        <canvas id="victimsTime" height="200"></canvas>
+        <canvas id="victimsTime"></canvas>
       </div>
-    </div>
-    <div class="col-lg-6">
+
       <div class="card p-3">
         <h6>Distribución población</h6>
-        <canvas id="popDonut" height="200"></canvas>
+        <canvas id="popDonut"></canvas>
       </div>
     </div>
   </section>
 
-  <!-- simulación removida (según pedido) -->
+  <!-- EVALUACIÓN ESTRUCTURAS CRÍTICAS: fila completa grande debajo -->
+  <section id="structEvalWrapper" class="row">
+    <div class="col-12">
+      <div class="card p-3">
+        <h6>EVALUACIÓN ESTRUCTURAS CRÍTICAS (ESCALA 1-5)</h6>
+        <div id="structEvalChart">
+          <canvas id="hospCapChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ---------- CARD FINAL: Zona de Exclusión ---------- -->
@@ -275,29 +284,76 @@ function renderCharts(metrics, summary) {
     options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
   });
 
-  // Capacidad hospitalaria (línea)
-  const hospLabels = (metrics.hospital_operational_pct || []).map(p => new Date(p.timestamp).toLocaleTimeString());
-  const hospValues = (metrics.hospital_operational_pct || []).map(p => p.value);
-
-  if (charts.hospCap) charts.hospCap.destroy();
-  charts.hospCap = new Chart(document.getElementById('hospCapChart'), {
-    type: 'line',
-    data: {
-      labels: hospLabels,
-      datasets: [{ label: '% capacidad hospitalaria', data: hospValues, borderColor: 'blue', fill: false }]
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } } }
-  });
-
   // Distribución población (donut)
   if (charts.popDonut) charts.popDonut.destroy();
   charts.popDonut = new Chart(document.getElementById('popDonut'), {
     type: 'doughnut',
     data: {
       labels: ['Afectados', 'No afectados'],
-      datasets: [{ data: [summary.affected, summary.population - summary.affected], backgroundColor: ['#dc3545','#28a745'] } ]
+      datasets: [{ data: [summary.affected || 1050, (summary.population || 3500) - (summary.affected || 1050)], backgroundColor: ['#dc3545','#28a745'] } ]
     },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // --- EVALUACION ESTRUCTURAS CRITICAS (barra horizontal grande) ---
+  const structLabels = [
+    'Salas médicas',
+    'Escuelas',
+    'Estaciones de bombeo',
+    'Subestaciones',
+    'Puente RP 179',
+    'Puente RP 175'
+  ];
+  const structValues = [4, 2, 1, 4, 5, 5];
+  const structColors = [
+    '#ff8800', // naranja
+    '#5bc0de', // celeste
+    '#28a745', // verde
+    '#ff8800', // naranja
+    '#ff4d4f', // rojo
+    '#ff4d4f'  // rojo
+  ];
+
+  if (charts.structEval) charts.structEval.destroy();
+  charts.structEval = new Chart(document.getElementById('hospCapChart'), {
+    type: 'bar',
+    data: {
+      labels: structLabels,
+      datasets: [{
+        label: 'Evaluación (1-5)',
+        data: structValues,
+        backgroundColor: structColors,
+        borderRadius: 6,
+        barThickness: 22,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.parsed.x + ' / 5';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 5,
+          ticks: {
+            stepSize: 1
+          },
+          title: { display: true, text: 'Nivel (1 = buen estado, 5 = crítico)' }
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
   });
 }
 
@@ -309,15 +365,13 @@ const bridgeIcon = L.divIcon({
   html: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h18" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/><path d="M6 9v4" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/><path d="M18 9v4" stroke="#e74c3c" stroke-width="2" stroke-linecap="round"/></svg>',
   iconSize:[24,24], iconAnchor:[12,12]
 });
-const epicIcon = undefined; // usamos el default del marker si queremos (lo manejamos en updateEpicOnMap)
+const epicIcon = undefined;
 
 /* LocalStorage key para puentes */
-const BRIDGES_KEY = 'broken_bridges'; // array [{id,lat,lng,name}]
+const BRIDGES_KEY = 'broken_bridges';
 
-/* Modo para definir en mapa (null | {type:'bridge', id:1|2} | {type:'epic'}) */
 let defineMode = null;
 
-/* Cargar puentes desde localStorage */
 function loadBridges(){
   try { const raw = localStorage.getItem(BRIDGES_KEY); return raw ? JSON.parse(raw) : []; }
   catch(e){ return []; }
@@ -326,7 +380,6 @@ function saveBridges(list){
   localStorage.setItem(BRIDGES_KEY, JSON.stringify(list));
 }
 
-/* Actualiza / pinta los puentes en el mapa */
 function updateBridgesOnMap(){
   if(!leafletState.map) return;
   if(!leafletState.bridgesLayer) {
@@ -337,7 +390,6 @@ function updateBridgesOnMap(){
   list.forEach(b => {
     const m = L.marker([b.lat, b.lng], { icon: bridgeIcon, draggable:true, title: b.name || ('Puente '+b.id) });
     m.addTo(leafletState.bridgesLayer);
-    // si se arrastra, actualizamos coords guardadas
     m.on('dragend', function(){
       const p = m.getLatLng();
       const arr = loadBridges();
@@ -347,7 +399,6 @@ function updateBridgesOnMap(){
   });
 }
 
-/* Colocar o actualizar un puente por id */
 function placeBridge(id, lat, lng, name){
   const arr = loadBridges();
   const existing = arr.find(x => x.id === id);
@@ -357,7 +408,6 @@ function placeBridge(id, lat, lng, name){
   updateBridgesOnMap();
 }
 
-/* Función existente: actualizar epicentro (sin tocar) */
 function updateEpicOnMap(lat, lng, store=true) {
   const epic = [lat, lng];
   if (!leafletState.map) return;
@@ -372,7 +422,6 @@ function updateEpicOnMap(lat, lng, store=true) {
   if (store) localStorage.setItem('epicentro_coords', JSON.stringify({lat, lng}));
 }
 
-/* Inicialización del mapa (se integra con init()) */
 function initMapWithBridges(defaultCoords){
   if (!leafletState.map) {
     leafletState.map = L.map('map', { minZoom:5 }).setView([defaultCoords.lat, defaultCoords.lng], 12);
@@ -380,17 +429,14 @@ function initMapWithBridges(defaultCoords){
     updateEpicOnMap(defaultCoords.lat, defaultCoords.lng, false);
   }
 
-  // capa de puentes
   updateBridgesOnMap();
 
-  // handler global de clicks: si estamos en modo definir puente/epicentro
   leafletState.map.on('click', function(e){
     if(!defineMode) return;
     if(defineMode.type === 'bridge'){
       placeBridge(defineMode.id, e.latlng.lat, e.latlng.lng);
       defineMode = null;
-      // feedback mínimo
-      setTimeout(()=> alert('Puente ' + (defineMode === null ? 'guardado.' : 'guardado.')), 100); // alerta simple
+      setTimeout(()=> alert('Puente guardado.'), 100);
       updateBridgesOnMap();
     } else if(defineMode.type === 'epic'){
       updateEpicOnMap(e.latlng.lat, e.latlng.lng, true);
@@ -400,43 +446,57 @@ function initMapWithBridges(defaultCoords){
   });
 }
 
-/* ---------- Init (integración con tu init existente) ---------- */
+/* ---------- Init ---------- */
 async function init() {
   try {
     const [data, metrics] = await Promise.all([fetchSummary(), fetchMetrics()]);
+    // síntesis
     document.getElementById('synthesis').textContent =
       `MAGNITUD SISMO: ~6.8   |   HORA: 04:17 |   TEMPERATURA: -3°C.`;
 
+    // tarjetas (mantengo tu lógica para población/fallecidos)
     const cardsEl = document.getElementById('summary-cards');
     cardsEl.innerHTML = '';
-    cardsEl.innerHTML += createCard('Población total', 'Distrito: Las Malvinas', data.population, 'popTotal');
-    cardsEl.innerHTML += createCard('Personas afectadas', 'Estimación 25-35%', data.affected, 'affected');
-    cardsEl.innerHTML += createCard('Fallecidos proyectados', '72h', data.fatalities, 'fatalities');
-    cardsEl.innerHTML += createCard('Capacidad hospitalaria', 'Operativa inicial', Math.round((data.hospital_operational_pct || 0) * 100) + '%', 'hospitalCap');
+    cardsEl.innerHTML += createCard('Población total', 'Distrito: Las Malvinas', (data.population || 3500), 'popTotal');
+    cardsEl.innerHTML += createCard('Personas afectadas', 'Estimación 25-35%', (data.affected || 1050), 'affected');
+    cardsEl.innerHTML += createCard('Fallecidos proyectados', '72h', (data.fatalities || 80), 'fatalities');
+    cardsEl.innerHTML += createCard('Capacidad hospitalaria', 'Operativa inicial', Math.round((data.hospital_operational_pct || 0.4) * 100) + '%', 'hospitalCap');
 
+    // servicios: rellenar en formato horizontal compacto
     const servicesEl = document.getElementById('servicesList');
     servicesEl.innerHTML = '';
-    (data.services||[]).forEach(s => { servicesEl.innerHTML += `<li><strong>${s.name||'Servicio'}</strong>: ${s.status||s}</li>`; });
+    const svc = data.services || [
+      {name:'Electricidad', status:'Corte total'},
+      {name:'Agua', status:'Cortes y baja presión (20-35%)'},
+      {name:'Comunicaciones móviles', status:'Sin telefonía móvil ni internet'},
+      {name:'Radio local', status:'Activa'},
+      {name:'Clima (noches)', status:'Frío -3°C nocturno'}
+    ];
+    svc.forEach(s => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${s.name}:</strong> ${s.status}`;
+      servicesEl.appendChild(li);
+    });
 
+    // coords default / epicentro almacenado
     const defaultCoords = { lat: -34.834762, lng: -68.251582 };
     let coords = safeGet(data, 'coords', defaultCoords);
     try { const stored = JSON.parse(localStorage.getItem('epicentro_coords')); if (stored) coords = stored; } catch(e){}
 
-    // inicializamos mapa y puentes
+    // init map
     initMapWithBridges(coords);
 
-    // Render charts
-    renderCharts(metrics, data);
+    // render charts (victims, donut, structural)
+    renderCharts(metrics || {}, data || {});
 
-    // Actualizamos puentes (por si había guardados)
+    // actualizar puentes
     updateBridgesOnMap();
 
   } catch(err){ console.error(err); }
 }
 init();
 
-/* ---------- UI: botones mínimos añadidos ---------- */
-/* Botones que agregué: defBridge1, defBridge2. Actúan en modo "click en mapa" */
+/* ---------- UI Buttons ---------- */
 document.getElementById('defBridge1').addEventListener('click', function(){
   defineMode = { type: 'bridge', id: 1 };
   alert('Hacé click en el mapa para definir la ubicación del Puente 1. También podés arrastrar el marcador luego.');
@@ -445,24 +505,15 @@ document.getElementById('defBridge2').addEventListener('click', function(){
   defineMode = { type: 'bridge', id: 2 };
   alert('Hacé click en el mapa para definir la ubicación del Puente 2. También podés arrastrar el marcador luego.');
 });
-
-/* Reutilizo tu botón de epicentro para permitir definirlo con click en mapa */
 document.getElementById('setEpicBtn').addEventListener('click', function(){
   defineMode = { type: 'epic' };
   alert('Hacé click en el mapa para definir el epicentro. También podés arrastrar el marcador luego.');
 });
-
-/* Mostrar / ocultar puentes según checkbox (ya estaba en tu HTML; aqui lo activamos) */
 document.getElementById('toggleBridges').addEventListener('change', function(e){
   if(!leafletState.map || !leafletState.bridgesLayer) return;
-  if(e.target.checked) {
-    leafletState.map.addLayer(leafletState.bridgesLayer);
-  } else {
-    leafletState.map.removeLayer(leafletState.bridgesLayer);
-  }
+  if(e.target.checked) leafletState.map.addLayer(leafletState.bridgesLayer);
+  else leafletState.map.removeLayer(leafletState.bridgesLayer);
 });
-
-/* (Opcional) Zoom al epicentro con tu botón 'zoomEpic' */
 document.getElementById('zoomEpic').addEventListener('click', function(){
   try {
     const stored = JSON.parse(localStorage.getItem('epicentro_coords'));
@@ -470,15 +521,13 @@ document.getElementById('zoomEpic').addEventListener('click', function(){
   } catch(e){ console.warn(e); }
 });
 
-/* Para exportar puentes (si querés usarlo desde consola o agregar botón): */
+/* Export helper */
 function exportBridgesJSON(){
   const data = loadBridges();
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'broken_bridges.json'; a.click(); URL.revokeObjectURL(url);
 }
-
-/* Fin del script */
 </script>
 </body>
 </html>
